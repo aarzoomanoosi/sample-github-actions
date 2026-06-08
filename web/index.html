@@ -1,0 +1,68 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>API Tester</title>
+    <link rel="stylesheet" href="/styles.css">
+  </head>
+  <body>
+    <main class="shell">
+      <header class="topbar">
+        <div>
+          <p class="eyebrow">Express</p>
+          <h1>API Tester</h1>
+        </div>
+        <span class="status-pill" id="service-status">Idle</span>
+      </header>
+
+      <section class="workspace" aria-label="API endpoint controls">
+        <article class="panel">
+          <div class="panel-header">
+            <div>
+              <p class="method get">GET</p>
+              <h2>/api/sample</h2>
+            </div>
+            <button type="button" id="get-button">Send GET</button>
+          </div>
+
+          <div class="response-box">
+            <div class="response-meta">
+              <span>Response</span>
+              <span id="get-status">Not sent</span>
+            </div>
+            <pre id="get-output">{}</pre>
+          </div>
+        </article>
+
+        <article class="panel">
+          <div class="panel-header">
+            <div>
+              <p class="method post">POST</p>
+              <h2>/api/sample</h2>
+            </div>
+            <button type="button" id="post-button">Send POST</button>
+          </div>
+
+          <label class="field">
+            <span>Request Body</span>
+            <textarea id="post-body" spellcheck="false">{
+  "name": "Test User",
+  "role": "developer"
+}</textarea>
+          </label>
+
+          <div class="response-box">
+            <div class="response-meta">
+              <span>Response</span>
+              <span id="post-status">Not sent</span>
+            </div>
+            <pre id="post-output">{}</pre>
+          </div>
+        </article>
+      </section>
+    </main>
+
+    <script src="/app.js"></script>
+  </body>
+</html>
