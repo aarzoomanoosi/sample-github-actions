@@ -6,6 +6,7 @@
   "scripts": {
     "start": "node api/index.js",
     "dev": "nodemon api/index.js",
+    "lint": "node --check api/index.js && node --check tests/api.test.js && node --check web/app.js",
     "test": "node --test"
   },
   "keywords": [],

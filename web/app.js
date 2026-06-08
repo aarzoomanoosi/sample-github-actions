@@ -6,6 +6,13 @@ const postStatus = document.querySelector('#post-status');
 const getOutput = document.querySelector('#get-output');
 const postOutput = document.querySelector('#post-output');
 const postBody = document.querySelector('#post-body');
+const todoPostButton = document.querySelector('#todo-post-button');
+const todoGetButton = document.querySelector('#todo-get-button');
+const todoPostStatus = document.querySelector('#todo-post-status');
+const todoGetStatus = document.querySelector('#todo-get-status');
+const todoPostOutput = document.querySelector('#todo-post-output');
+const todoGetOutput = document.querySelector('#todo-get-output');
+const todoBody = document.querySelector('#todo-body');
 
 function formatJson(value) {
   return JSON.stringify(value, null, 2);
@@ -30,7 +37,7 @@ async function parseResponse(response) {
   }
 }
 
-async function sendRequest({ method, body, output, status, button }) {
+async function sendRequest({ endpoint, method, body, output, status, button }) {
   button.disabled = true;
   status.textContent = 'Sending';
   output.textContent = '{}';
@@ -44,7 +51,7 @@ async function sendRequest({ method, body, output, status, button }) {
       options.body = body;
     }
 
-    const response = await fetch('/api/sample', options);
+    const response = await fetch(endpoint, options);
     const payload = await parseResponse(response);
 
     status.textContent = `${response.status} ${response.statusText}`;
@@ -61,6 +68,7 @@ async function sendRequest({ method, body, output, status, button }) {
 
 getButton.addEventListener('click', () => {
   sendRequest({
+    endpoint: '/api/sample',
     method: 'GET',
     output: getOutput,
     status: getStatus,
@@ -81,10 +89,43 @@ postButton.addEventListener('click', () => {
   }
 
   sendRequest({
+    endpoint: '/api/sample',
     method: 'POST',
     body,
     output: postOutput,
     status: postStatus,
     button: postButton,
+  });
+});
+
+todoPostButton.addEventListener('click', () => {
+  let body;
+
+  try {
+    body = JSON.stringify(JSON.parse(todoBody.value));
+  } catch {
+    todoPostStatus.textContent = 'Invalid JSON';
+    todoPostOutput.textContent = formatJson({ error: 'Todo body must be valid JSON.' });
+    setServiceStatus('Error', 'error');
+    return;
+  }
+
+  sendRequest({
+    endpoint: '/api/todos',
+    method: 'POST',
+    body,
+    output: todoPostOutput,
+    status: todoPostStatus,
+    button: todoPostButton,
+  });
+});
+
+todoGetButton.addEventListener('click', () => {
+  sendRequest({
+    endpoint: '/api/todos',
+    method: 'GET',
+    output: todoGetOutput,
+    status: todoGetStatus,
+    button: todoGetButton,
   });
 });

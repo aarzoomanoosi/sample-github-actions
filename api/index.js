@@ -4,6 +4,9 @@ const path = require('path');
 const app = express();
 const PORT = process.env.PORT || 3000;
 const webRoot = path.join(__dirname, '..', 'web');
+const todoCache = [];
+
+app.locals.todoCache = todoCache;
 
 app.use(express.json());
 app.use(express.static(webRoot));
@@ -32,6 +35,30 @@ app.post('/api/sample', (req, res) => {
       name: 'Created Dummy User',
       role: 'tester',
     },
+  });
+});
+
+app.get('/api/todos', (req, res) => {
+  res.json({
+    message: 'Todo list',
+    data: todoCache,
+  });
+});
+
+app.post('/api/todos', (req, res) => {
+  if (!req.body || Array.isArray(req.body) || typeof req.body !== 'object') {
+    res.status(400).json({
+      message: 'Todo must be a JSON object',
+    });
+    return;
+  }
+
+  const todo = { ...req.body };
+  todoCache.push(todo);
+
+  res.status(201).json({
+    message: 'Todo created',
+    data: todo,
   });
 });
 

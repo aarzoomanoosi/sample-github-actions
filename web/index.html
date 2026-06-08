@@ -60,6 +60,50 @@
             <pre id="post-output">{}</pre>
           </div>
         </article>
+
+        <article class="panel">
+          <div class="panel-header">
+            <div>
+              <p class="method post">POST</p>
+              <h2>/api/todos</h2>
+            </div>
+            <button type="button" id="todo-post-button">Create Todo</button>
+          </div>
+
+          <label class="field">
+            <span>Todo Body</span>
+            <textarea id="todo-body" spellcheck="false">{
+  "title": "Review pull request",
+  "completed": false
+}</textarea>
+          </label>
+
+          <div class="response-box">
+            <div class="response-meta">
+              <span>Response</span>
+              <span id="todo-post-status">Not sent</span>
+            </div>
+            <pre id="todo-post-output">{}</pre>
+          </div>
+        </article>
+
+        <article class="panel">
+          <div class="panel-header">
+            <div>
+              <p class="method get">GET</p>
+              <h2>/api/todos</h2>
+            </div>
+            <button type="button" id="todo-get-button">Load Todos</button>
+          </div>
+
+          <div class="response-box">
+            <div class="response-meta">
+              <span>Response</span>
+              <span id="todo-get-status">Not sent</span>
+            </div>
+            <pre id="todo-get-output">{}</pre>
+          </div>
+        </article>
       </section>
     </main>
 
