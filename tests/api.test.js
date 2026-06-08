@@ -1,5 +1,5 @@
 const assert = require('node:assert/strict');
-const { after, before, test } = require('node:test');
+const { after, before, beforeEach, test } = require('node:test');
 
 const app = require('../api');
 
@@ -30,6 +30,20 @@ after(async () => {
   });
 });
 
+beforeEach(() => {
+  app.locals.todoCache.length = 0;
+});
+
+async function postJson(path, body) {
+  return fetch(`${baseUrl}${path}`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify(body),
+  });
+}
+
 test('GET /api/sample returns dummy sample data', async () => {
   const response = await fetch(`${baseUrl}/api/sample`);
   const body = await response.json();
@@ -52,13 +66,7 @@ test('POST /api/sample returns created dummy data and echoes request body', asyn
     role: 'developer',
   };
 
-  const response = await fetch(`${baseUrl}/api/sample`, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify(requestBody),
-  });
+  const response = await postJson('/api/sample', requestBody);
   const body = await response.json();
 
   assert.equal(response.status, 201);
@@ -71,5 +79,82 @@ test('POST /api/sample returns created dummy data and echoes request body', asyn
       name: 'Created Dummy User',
       role: 'tester',
     },
+  });
+});
+
+test('GET /api/todos returns an empty list before todos are created', async () => {
+  const response = await fetch(`${baseUrl}/api/todos`);
+  const body = await response.json();
+
+  assert.equal(response.status, 200);
+  assert.match(response.headers.get('content-type'), /application\/json/);
+  assert.deepEqual(body, {
+    message: 'Todo list',
+    data: [],
+  });
+});
+
+test('POST /api/todos stores a todo object', async () => {
+  const todo = {
+    title: 'Write API tests',
+    completed: false,
+    priority: 'high',
+  };
+
+  const createResponse = await postJson('/api/todos', todo);
+  const createBody = await createResponse.json();
+
+  assert.equal(createResponse.status, 201);
+  assert.match(createResponse.headers.get('content-type'), /application\/json/);
+  assert.deepEqual(createBody, {
+    message: 'Todo created',
+    data: todo,
+  });
+});
+
+test('GET /api/todos returns all cached todos in insertion order', async () => {
+  const firstTodo = {
+    title: 'Write API tests',
+    completed: false,
+  };
+  const secondTodo = {
+    title: 'Update GitHub Actions workflow',
+    completed: true,
+  };
+
+  await postJson('/api/todos', firstTodo);
+  await postJson('/api/todos', secondTodo);
+
+  const listResponse = await fetch(`${baseUrl}/api/todos`);
+  const listBody = await listResponse.json();
+
+  assert.equal(listResponse.status, 200);
+  assert.match(listResponse.headers.get('content-type'), /application\/json/);
+  assert.deepEqual(listBody, {
+    message: 'Todo list',
+    data: [firstTodo, secondTodo],
+  });
+});
+
+test('POST /api/todos rejects non-object request bodies', async () => {
+  const response = await postJson('/api/todos', ['not', 'a', 'todo']);
+  const body = await response.json();
+
+  assert.equal(response.status, 400);
+  assert.deepEqual(body, {
+    message: 'Todo must be a JSON object',
+  });
+});
+
+test('POST /api/todos does not write invalid todo bodies to cache', async () => {
+  await postJson('/api/todos', ['not', 'a', 'todo']);
+
+  const listResponse = await fetch(`${baseUrl}/api/todos`);
+  const listBody = await listResponse.json();
+
+  assert.equal(listResponse.status, 200);
+  assert.deepEqual(listBody, {
+    message: 'Todo list',
+    data: [],
   });
 });
